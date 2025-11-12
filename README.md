@@ -1,13 +1,6 @@
-<div align="center">
-  <img width="1200" height="475" alt="Roopix AI Banner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
-
 # Roopix AI — Personal AI Stylist & Virtual Try‑On
 
 Upload a full‑body photo and receive expert outfit recommendations from a world‑class AI stylist. Explore Formal, Casual, and Stylish looks curated for your selected season and occasion, then generate photorealistic virtual try‑on images and save your favorites.
-
-If you’re using Google AI Studio, you can also open the app there:
-https://ai.studio/apps/drive/1BsheayaibS78PB2zTXHqvrysbBRjYT1d
 
 ## Features
 
