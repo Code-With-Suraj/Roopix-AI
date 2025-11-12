@@ -1,21 +1,16 @@
-
 import React, { useState } from 'react';
 import { OutfitSuggestion, OutfitVariation } from '../types';
 import { SparklesIcon, TagIcon } from './icons';
 
 interface SuggestionCardProps {
   suggestion: OutfitSuggestion;
-  onTryOn: (suggestion: OutfitSuggestion, outfit: OutfitVariation) => void;
-  appState: 'initial' | 'loadingSuggestions' | 'suggestionsReady' | 'loadingTryOn' | 'tryOnReady' | 'error';
-  activeSuggestionType?: OutfitSuggestion['type'];
-  activeOutfitDescription?: string | null;
+  onTryOn: (suggestion: OutfitSuggestion, selectedIndex: number) => void;
+  isDisabled: boolean;
 }
 
-const SuggestionCard: React.FC<SuggestionCardProps> = ({ suggestion, onTryOn, appState, activeSuggestionType, activeOutfitDescription }) => {
+const SuggestionCard: React.FC<SuggestionCardProps> = ({ suggestion, onTryOn, isDisabled }) => {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const selectedOutfit = suggestion.outfits[selectedIndex];
-  
-  const isCardInactive = appState === 'loadingTryOn' && activeSuggestionType !== suggestion.type;
 
   const getBadgeColor = (type: string) => {
     switch (type) {
@@ -27,7 +22,7 @@ const SuggestionCard: React.FC<SuggestionCardProps> = ({ suggestion, onTryOn, ap
   };
 
   return (
-    <div className={`bg-white rounded-2xl shadow-lg border border-slate-200 p-6 transition-all duration-300 ${isCardInactive ? 'opacity-50' : 'opacity-100'}`}>
+    <div className={`bg-white rounded-2xl shadow-lg border border-slate-200 p-6 transition-opacity duration-300 ${isDisabled ? 'opacity-50' : 'opacity-100'}`}>
       <div className="flex justify-between items-start mb-4">
         <h3 className="text-xl font-bold text-slate-800">{suggestion.type} Look</h3>
         <span className={`px-3 py-1 text-sm font-semibold rounded-full ${getBadgeColor(suggestion.type)}`}>
@@ -41,6 +36,7 @@ const SuggestionCard: React.FC<SuggestionCardProps> = ({ suggestion, onTryOn, ap
                 <button 
                     key={index}
                     onClick={() => setSelectedIndex(index)}
+                    disabled={isDisabled}
                     className={`flex-1 py-2 px-1 text-sm font-medium transition-colors ${selectedIndex === index ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-slate-500 hover:text-slate-700'}`}
                 >
                     Outfit {index + 1}
@@ -65,24 +61,12 @@ const SuggestionCard: React.FC<SuggestionCardProps> = ({ suggestion, onTryOn, ap
         </div>
         
         <button 
-          onClick={() => onTryOn(suggestion, selectedOutfit)}
-          disabled={appState === 'loadingTryOn'}
+          onClick={() => onTryOn(suggestion, selectedIndex)}
+          disabled={isDisabled}
           className="w-full bg-indigo-600 text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center hover:bg-indigo-700 disabled:bg-indigo-300 disabled:cursor-not-allowed transition-colors"
         >
-          {appState === 'loadingTryOn' && activeSuggestionType === suggestion.type && activeOutfitDescription === selectedOutfit.description ? (
-            <>
-              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              Generating...
-            </>
-          ) : (
-            <>
-              <SparklesIcon className="w-5 h-5 mr-2" />
-              Virtual Try-On
-            </>
-          )}
+          <SparklesIcon className="w-5 h-5 mr-2" />
+          Virtual Try-On
         </button>
       </div>
     </div>
