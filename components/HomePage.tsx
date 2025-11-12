@@ -129,12 +129,12 @@ const HomePage: React.FC<HomePageProps> = ({ onGetStarted }) => {
       <section className="relative bg-slate-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-24 grid lg:grid-cols-2 gap-16 items-center">
             <div className="text-center lg:text-left">
-              <span className="inline-block bg-indigo-100 text-indigo-700 font-semibold px-4 py-1 rounded-full text-sm mb-4">Welcome to the Future of Fashion</span>
+              <span className="inline-block bg-indigo-100 text-indigo-700 font-semibold px-4 py-1 rounded-full text-sm mb-4">15+ Years of Styling Experience</span>
               <h1 className="text-4xl md:text-6xl font-extrabold text-slate-900 mb-4 tracking-tighter">
-                Your Personal AI Stylist
+                Meet Nayara, Your Elite AI Stylist
               </h1>
               <p className="max-w-xl mx-auto lg:mx-0 text-lg md:text-xl text-slate-600 mb-8">
-                Tired of guessing what to wear? Get instant, personalized outfit recommendations and virtually try them on with our groundbreaking AI technology.
+                Tired of guessing what to wear? With 15+ years of experience, Nayara performs an in-depth analysis of your photo to provide truly bespoke outfit recommendations.
               </p>
               <button
                 onClick={onGetStarted}
@@ -200,7 +200,7 @@ const HomePage: React.FC<HomePageProps> = ({ onGetStarted }) => {
                         <img src="https://cdn-icons-png.flaticon.com/512/9036/9036730.png" alt="Review Icon" className="w-24 h-24 mx-auto mb-4"/>
                         <p className="text-sm font-semibold text-indigo-600 mb-2">STEP 3</p>
                         <h3 className="text-xl font-bold text-slate-800 mb-2">Get Suggestions</h3>
-                        <p className="text-slate-500">Our AI curates three distinct outfits for you.</p>
+                        <p className="text-slate-500">Nayara curates three distinct outfits for you.</p>
                      </div>
                      <div className="text-center p-6 bg-white rounded-xl border border-slate-200/80 shadow-sm">
                         <img src="https://cdn-icons-png.flaticon.com/512/9525/9525049.png" alt="Try-On Icon" className="w-24 h-24 mx-auto mb-4"/>
@@ -239,15 +239,15 @@ const HomePage: React.FC<HomePageProps> = ({ onGetStarted }) => {
              <div className="absolute -top-10 -left-10 w-32 h-32 bg-white/10 rounded-full"></div>
              <div className="absolute -bottom-16 -right-5 w-40 h-40 bg-white/10 rounded-full"></div>
              <div className="relative">
-                 <h2 className="text-3xl md:text-4xl font-bold text-white tracking-tight">Ready to Discover Your Best Look?</h2>
+                 <h2 className="text-3xl md:text-4xl font-bold text-white tracking-tight">Ready for a Masterclass in Style?</h2>
                  <p className="max-w-2xl mx-auto text-lg text-indigo-100 mt-4 mb-8">
-                   Your style evolution starts here. Get personalized, AI-driven fashion advice today.
+                   Let Nayara, with 15+ years of expertise, conduct an in-depth analysis and transform your look. Your style evolution starts here.
                  </p>
                  <button 
                     onClick={onGetStarted} 
                     className="bg-white text-indigo-600 font-bold py-4 px-8 rounded-lg text-lg hover:bg-slate-100 transition-transform hover:scale-105 transform shadow-lg"
                 >
-                  Start My Transformation
+                  Consult Nayara Now
                 </button>
               </div>
           </div>

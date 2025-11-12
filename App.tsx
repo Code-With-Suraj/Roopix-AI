@@ -3,7 +3,7 @@ import { OutfitSuggestion, OutfitVariation } from './types';
 import Header from './components/Header';
 import ImageUploader from './components/ImageUploader';
 import SuggestionCard from './components/SuggestionCard';
-import { ArrowPathIcon, ExclamationTriangleIcon } from './components/icons';
+import { ArrowPathIcon, ExclamationTriangleIcon, WandSparklesIcon, QuestionMarkCircleIcon } from './components/icons';
 import SeasonSelector from './components/SeasonSelector';
 import OccasionSelector from './components/OccasionSelector';
 import ProgressTracker from './components/ProgressTracker';
@@ -29,6 +29,7 @@ const App: React.FC = () => {
   const [suggestions, setSuggestions] = useState<OutfitSuggestion[]>([]);
   const [tryOnData, setTryOnData] = useState<TryOnData | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [inDepthMode, setInDepthMode] = useState<boolean>(false);
   
   const { favorites, addFavorite, removeFavorite, isFavorite } = useFavorites();
 
@@ -65,7 +66,7 @@ const App: React.FC = () => {
 
       // Lazy import to improve initial load time
       const { getOutfitSuggestions } = await import('./services/geminiService');
-      const fetchedSuggestions = await getOutfitSuggestions(base64, file.type, selectedSeason, occasion);
+      const fetchedSuggestions = await getOutfitSuggestions(base64, file.type, selectedSeason, occasion, inDepthMode);
 
       if (fetchedSuggestions && fetchedSuggestions.length > 0) {
         setSuggestions(fetchedSuggestions);
@@ -78,7 +79,7 @@ const App: React.FC = () => {
       setError(`Failed to get suggestions: ${e.message}. Please try a different image or prompt.`);
       setAppState('error');
     }
-  }, [pendingImage, selectedSeason]);
+  }, [pendingImage, selectedSeason, inDepthMode]);
 
   const handleTryOn = useCallback((suggestion: OutfitSuggestion, initialIndex: number) => {
     if (!userImage) return;
@@ -103,6 +104,7 @@ const App: React.FC = () => {
     setSuggestions([]);
     setTryOnData(null);
     setError(null);
+    setInDepthMode(false);
   };
 
   const handleGetStarted = () => {
@@ -152,13 +154,48 @@ const App: React.FC = () => {
             <h2 className="text-2xl font-bold text-slate-800 mb-4">Your Photo</h2>
             <img src={userImage} alt="User upload" className="rounded-2xl shadow-lg object-contain max-h-[500px] w-full" />
           </div>
-          <OccasionSelector onOccasionSelect={handleOccasionSelect} />
+          <div className="flex flex-col gap-6">
+            <OccasionSelector onOccasionSelect={handleOccasionSelect} />
+            <div className="w-full max-w-md p-6 bg-white rounded-2xl shadow-xl border border-slate-200 self-center">
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center">
+                        <WandSparklesIcon className="w-8 h-8 text-indigo-500 mr-4" />
+                        <label htmlFor="in-depth-toggle" className="flex flex-col text-left cursor-pointer">
+                            <span className="font-semibold text-slate-800">Activate Nayara</span>
+                            <span className="text-sm text-slate-500">Get a hyper-personalized consultation.</span>
+                        </label>
+                         <div className="relative group flex items-center ml-2">
+                            <QuestionMarkCircleIcon className="w-5 h-5 text-slate-400 cursor-help" />
+                            <div className="absolute bottom-full mb-2 w-64 bg-slate-800 text-white text-xs rounded-lg p-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-10 -translate-x-1/2 left-1/2 shadow-lg">
+                                Activates Nayara's expert mode for hyper-personalized consultations, which may take longer.
+                                <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-x-4 border-x-transparent border-t-4 border-t-slate-800"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="relative inline-flex items-center cursor-pointer">
+                        <input 
+                            type="checkbox" 
+                            id="in-depth-toggle" 
+                            className="sr-only peer" 
+                            checked={inDepthMode}
+                            onChange={(e) => setInDepthMode(e.target.checked)}
+                        />
+                        <div className="w-11 h-6 bg-slate-200 rounded-full peer peer-focus:ring-2 peer-focus:ring-offset-2 peer-focus:ring-indigo-500 transition peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                    </div>
+                </div>
+                {inDepthMode && (
+                    <div className="mt-4 text-sm text-indigo-800 bg-indigo-100 rounded-lg p-3 text-center transition-all duration-300 animate-fade-in">
+                        <strong>Please note:</strong> A consultation with Nayara takes longer, typically around 1 minute.
+                    </div>
+                )}
+            </div>
+          </div>
         </div>
       );
     }
     
     if (appState === 'loadingSuggestions') {
-      return <ProgressTracker />;
+      return <ProgressTracker isExpertMode={inDepthMode} />;
     }
 
     if (error) {

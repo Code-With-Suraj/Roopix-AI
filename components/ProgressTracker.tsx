@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { CameraIcon, UserIcon, SparklesIcon, CheckCircleIcon } from './icons';
 
+interface ProgressTrackerProps {
+  isExpertMode?: boolean;
+}
+
 const STEPS = [
   { text: 'Analyzing Photo', icon: <CameraIcon className="w-6 h-6" /> },
   { text: 'Defining Style Profile', icon: <UserIcon className="w-6 h-6" /> },
@@ -8,12 +12,17 @@ const STEPS = [
   { text: 'Finalizing Looks', icon: <CheckCircleIcon className="w-6 h-6" /> },
 ];
 
-const ProgressTracker: React.FC = () => {
+const ProgressTracker: React.FC<ProgressTrackerProps> = ({ isExpertMode = false }) => {
   const [currentStep, setCurrentStep] = useState(0);
+
+  const title = isExpertMode ? "Nayara is Weaving Her Magic..." : "Styling in Progress...";
+  const subtitle = isExpertMode 
+    ? "This hyper-personalized consultation takes a little more time, but it's worth the wait!" 
+    : "Our AI is crafting your personalized lookbook. Please wait a moment.";
 
   useEffect(() => {
     // This is a cosmetic animation. The actual API call might be faster or slower.
-    const totalDuration = 10000; // 10 seconds total for animation
+    const totalDuration = isExpertMode ? 20000 : 10000; // Longer duration for expert mode
     const intervalTime = totalDuration / STEPS.length;
 
     const interval = setInterval(() => {
@@ -27,12 +36,12 @@ const ProgressTracker: React.FC = () => {
     }, intervalTime);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [isExpertMode]);
 
   return (
     <div className="w-full max-w-lg p-8 bg-white rounded-2xl shadow-xl border border-slate-200 animate-fade-in">
-      <h2 className="text-2xl font-bold text-slate-800 mb-2 text-center">Styling in Progress...</h2>
-      <p className="text-slate-600 mb-8 text-center">Our AI is crafting your personalized lookbook. Please wait a moment.</p>
+      <h2 className="text-2xl font-bold text-slate-800 mb-2 text-center">{title}</h2>
+      <p className="text-slate-600 mb-8 text-center">{subtitle}</p>
       <div className="space-y-4">
         {STEPS.map((step, index) => {
           const isCompleted = index < currentStep;

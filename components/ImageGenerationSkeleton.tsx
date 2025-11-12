@@ -2,14 +2,15 @@ import React from 'react';
 
 interface ImageGenerationSkeletonProps {
   outfitType: string;
+  variationIndex: number;
 }
 
-const ImageGenerationSkeleton: React.FC<ImageGenerationSkeletonProps> = ({ outfitType }) => {
+const ImageGenerationSkeleton: React.FC<ImageGenerationSkeletonProps> = ({ outfitType, variationIndex }) => {
   return (
     <div className="mt-8 bg-white p-6 rounded-2xl shadow-lg border border-slate-200 animate-fade-in">
       <div className="text-center mb-6">
         <h3 className="text-xl font-bold text-slate-800">
-          Generating <span className="text-indigo-600">{outfitType}</span> Look...
+          Generating <span className="text-indigo-600">{outfitType} Look (Variation {variationIndex + 1})</span>...
         </h3>
         <p className="text-slate-500 mt-1">Our AI is working its magic, please wait a moment.</p>
       </div>

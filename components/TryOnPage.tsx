@@ -59,7 +59,7 @@ const TryOnPage: React.FC<TryOnPageProps> = ({ userImage, suggestion, initialInd
     const currentImages = generatedImagesCache[currentIndex];
 
     if (isLoading) {
-      return <ImageGenerationSkeleton outfitType={suggestion.type} />;
+      return <ImageGenerationSkeleton outfitType={suggestion.type} variationIndex={currentIndex} />;
     }
     
     if (currentError) {
