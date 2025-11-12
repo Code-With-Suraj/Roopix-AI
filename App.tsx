@@ -11,6 +11,7 @@ import TryOnPage from './components/TryOnPage';
 import { useFavorites } from './hooks/useFavorites';
 import FavoritesGallery from './components/FavoritesGallery';
 import HomePage from './components/HomePage';
+import Footer from './components/Footer';
 
 type AppState = 'home' | 'initial' | 'awaitingSeason' | 'awaitingOccasion' | 'loadingSuggestions' | 'suggestionsReady' | 'viewingTryOn' | 'error';
 
@@ -212,13 +213,23 @@ const App: React.FC = () => {
 
     return null;
   }
+  
+  const isHomePage = appState === 'home';
+  const mainContent = renderContent();
 
   return (
-    <div className="min-h-screen bg-slate-100 flex flex-col">
+    <div className={`min-h-screen flex flex-col ${isHomePage ? 'bg-white' : 'bg-slate-100'}`}>
       <Header onHomeClick={handleReset} />
-      <main className="flex-grow container mx-auto p-4 md:p-8 flex flex-col items-center justify-center">
-        {renderContent()}
+      <main className="flex-grow w-full">
+        {isHomePage ? (
+          mainContent
+        ) : (
+          <div className="container mx-auto p-4 md:p-8 flex flex-col items-center justify-center">
+             {mainContent}
+          </div>
+        )}
       </main>
+      <Footer />
     </div>
   );
 };
