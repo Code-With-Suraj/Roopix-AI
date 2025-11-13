@@ -1,5 +1,6 @@
+
 import React, { useState, useCallback } from 'react';
-import { OutfitSuggestion, OutfitVariation } from './types';
+import { OutfitSuggestion } from './types';
 import Header from './components/Header';
 import ImageUploader from './components/ImageUploader';
 import SuggestionCard from './components/SuggestionCard';
@@ -12,8 +13,23 @@ import { useFavorites } from './hooks/useFavorites';
 import FavoritesGallery from './components/FavoritesGallery';
 import HomePage from './components/HomePage';
 import Footer from './components/Footer';
+import ApiKeySelector from './components/ApiKeySelector';
 
-type AppState = 'home' | 'initial' | 'awaitingSeason' | 'awaitingOccasion' | 'loadingSuggestions' | 'suggestionsReady' | 'viewingTryOn' | 'error';
+// Augment the Window interface to include aistudio properties for TypeScript
+// FIX: Changed to use a named interface `AIStudio` to resolve a TypeScript error.
+// The error "Subsequent property declarations must have the same type" suggests that
+// another declaration for `window.aistudio` exists and uses the type name `AIStudio`.
+interface AIStudio {
+  hasSelectedApiKey: () => Promise<boolean>;
+  openSelectKey: () => Promise<void>;
+}
+declare global {
+  interface Window {
+    aistudio?: AIStudio;
+  }
+}
+
+type AppState = 'home' | 'awaitingApiKey' | 'initial' | 'awaitingSeason' | 'awaitingOccasion' | 'loadingSuggestions' | 'suggestionsReady' | 'viewingTryOn' | 'error';
 
 interface TryOnData {
   userImage: string;
@@ -30,9 +46,21 @@ const App: React.FC = () => {
   const [tryOnData, setTryOnData] = useState<TryOnData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [inDepthMode, setInDepthMode] = useState<boolean>(false);
+  const [apiKeyError, setApiKeyError] = useState<boolean>(false);
   
   const { favorites, addFavorite, removeFavorite, isFavorite } = useFavorites();
 
+  const handleApiKeyError = () => {
+    setApiKeyError(true);
+    setAppState('awaitingApiKey');
+    // Reset the flow state
+    setUserImage(null);
+    setPendingImage(null);
+    setSelectedSeason(null);
+    setSuggestions([]);
+    setTryOnData(null);
+    setError(null);
+  };
 
   const handleImageUpload = useCallback(async (file: File) => {
     setAppState('awaitingSeason');
@@ -75,9 +103,13 @@ const App: React.FC = () => {
         throw new Error("Could not generate outfit suggestions. The response was empty.");
       }
     } catch (e: any) {
-      console.error(e);
-      setError(`Failed to get suggestions: ${e.message}. Please try a different image or prompt.`);
-      setAppState('error');
+      if (e.message && e.message.includes('Requested entity was not found.')) {
+        handleApiKeyError();
+      } else {
+        console.error(e);
+        setError(`Failed to get suggestions: ${e.message}. Please try a different image or prompt.`);
+        setAppState('error');
+      }
     }
   }, [pendingImage, selectedSeason, inDepthMode]);
 
@@ -104,11 +136,28 @@ const App: React.FC = () => {
     setSuggestions([]);
     setTryOnData(null);
     setError(null);
+    setApiKeyError(false);
     setInDepthMode(false);
   };
 
-  const handleGetStarted = () => {
-    setAppState('initial');
+  const handleGetStarted = async () => {
+    setApiKeyError(false); // Reset error on new attempt
+    if (window.aistudio && typeof window.aistudio.hasSelectedApiKey === 'function') {
+      const hasKey = await window.aistudio.hasSelectedApiKey();
+      if (hasKey) {
+        setAppState('initial');
+      } else {
+        setAppState('awaitingApiKey');
+      }
+    } else {
+      console.warn("aistudio API key selection not available, proceeding without check.");
+      setAppState('initial');
+    }
+  }
+
+  const handleKeySelected = () => {
+      setApiKeyError(false);
+      setAppState('initial');
   }
   
   const renderContent = () => {
@@ -116,6 +165,10 @@ const App: React.FC = () => {
       return <HomePage onGetStarted={handleGetStarted} />
     }
     
+    if (appState === 'awaitingApiKey') {
+      return <ApiKeySelector onKeySelected={handleKeySelected} apiKeyError={apiKeyError} />;
+    }
+
     if (appState === 'viewingTryOn' && tryOnData) {
       return (
           <TryOnPage 
@@ -127,6 +180,7 @@ const App: React.FC = () => {
             onAddFavorite={addFavorite}
             onRemoveFavorite={removeFavorite}
             isFavorite={isFavorite}
+            onApiKeyError={handleApiKeyError}
           />
       );
     }
