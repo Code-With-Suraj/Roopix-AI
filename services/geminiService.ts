@@ -1,6 +1,15 @@
 import { GoogleGenAI, Type, Modality } from "@google/genai";
 import { OutfitSuggestion } from '../types';
 
+const getAiClient = () => {
+    // API_KEY is automatically injected by the environment.
+    const apiKey = process.env.API_KEY;
+    if (!apiKey) {
+        throw new Error("API_KEY environment variable not set.");
+    }
+    return new GoogleGenAI({ apiKey });
+};
+
 const outfitSchema = {
     type: Type.ARRAY,
     items: {
@@ -75,12 +84,7 @@ const getPromptInDepth = (season: string, occasion: string) => `You are "Nayara,
 *   The final output must be a single, flawless JSON object, adhering strictly to the provided schema. No introductory text, no apologies, just pure, unadulterated style intelligence.`;
 
 export const getOutfitSuggestions = async (imageBase64: string, mimeType: string, season: string, occasion: string, inDepthMode: boolean): Promise<OutfitSuggestion[]> => {
-    // API_KEY is automatically injected by the environment after user selection.
-    const apiKey = process.env.API_KEY;
-    if (!apiKey) {
-        throw new Error("API_KEY is not available. Please select a key to use the application.");
-    }
-    const ai = new GoogleGenAI({ apiKey });
+    const ai = getAiClient();
     const model = 'gemini-2.5-pro';
 
     const prompt = inDepthMode
@@ -117,21 +121,12 @@ export const getOutfitSuggestions = async (imageBase64: string, mimeType: string
 
     } catch (error) {
         console.error("Error fetching outfit suggestions:", error);
-        // Propagate the original error message for specific checks like API key validity.
-        if (error instanceof Error) {
-            throw error;
-        }
         throw new Error("Failed to parse or receive suggestions from the AI model.");
     }
 };
 
 export const generateTryOnImages = async (imageBase64: string, mimeType: string, outfitDescription: string): Promise<string[]> => {
-    // API_KEY is automatically injected by the environment after user selection.
-    const apiKey = process.env.API_KEY;
-    if (!apiKey) {
-        throw new Error("API_KEY is not available. Please select a key to use the application.");
-    }
-    const ai = new GoogleGenAI({ apiKey });
+    const ai = getAiClient();
     const model = 'gemini-2.5-flash-image';
 
     const prompt = `Your primary and most critical task is to generate a high-quality, photorealistic image with a strict aspect ratio of 1:1. This is a non-negotiable requirement.
@@ -184,12 +179,7 @@ export const generateTryOnImages = async (imageBase64: string, mimeType: string,
             }
         } catch (error) {
              console.error(`Error generating image ${i+1}:`, error);
-             // Re-throw critical errors for upstream handling, like invalid API keys.
-             if (error instanceof Error) {
-                throw error;
-             }
-             // For other errors, we can throw a generic message, and the calling function can decide how to handle it.
-             throw new Error("An error occurred during image generation.");
+             // If one fails, we can continue and return what we have
         }
     }
     

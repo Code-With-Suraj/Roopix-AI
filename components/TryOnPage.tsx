@@ -14,10 +14,9 @@ interface TryOnPageProps {
   onAddFavorite: (imageUrl: string) => void;
   onRemoveFavorite: (imageUrl:string) => void;
   isFavorite: (imageUrl: string) => boolean;
-  onApiKeyError: () => void;
 }
 
-const TryOnPage: React.FC<TryOnPageProps> = ({ userImage, suggestion, initialIndex, onBack, favorites, onAddFavorite, onRemoveFavorite, onApiKeyError }) => {
+const TryOnPage: React.FC<TryOnPageProps> = ({ userImage, suggestion, initialIndex, onBack, favorites, onAddFavorite, onRemoveFavorite }) => {
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const [generatedImagesCache, setGeneratedImagesCache] = useState<Record<number, string[]>>({});
   const [loadingStates, setLoadingStates] = useState<Record<number, boolean>>({});
@@ -43,16 +42,12 @@ const TryOnPage: React.FC<TryOnPageProps> = ({ userImage, suggestion, initialInd
         throw new Error("Could not generate try-on images. The AI returned no images.");
       }
     } catch (e: any) {
-      if (e.message && e.message.includes('Requested entity was not found.')) {
-        onApiKeyError();
-      } else {
-        console.error(e);
-        setErrorStates(prev => ({ ...prev, [index]: `Failed to generate try-on images: ${e.message}. Please try again.`}));
-      }
+      console.error(e);
+      setErrorStates(prev => ({ ...prev, [index]: `Failed to generate try-on images: ${e.message}. Please try again.`}));
     } finally {
         setLoadingStates(prev => ({ ...prev, [index]: false }));
     }
-  }, [userImage, suggestion, generatedImagesCache, onApiKeyError]);
+  }, [userImage, suggestion, generatedImagesCache]);
   
   useEffect(() => {
     performTryOn(currentIndex);
